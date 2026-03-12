@@ -3,6 +3,7 @@ using ArchLens.Orchestrator.Api.ExceptionHandlers;
 using ArchLens.Orchestrator.Api.Middlewares;
 using ArchLens.Orchestrator.Application;
 using ArchLens.Orchestrator.Infrastructure;
+using ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Context;
 using Serilog;
 
 try
@@ -53,6 +54,12 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<SagaDbContext>();
+        await db.Database.MigrateAsync();
+    }
 
     app.UseExceptionHandler();
     app.UseMiddleware<SecurityHeadersMiddleware>();

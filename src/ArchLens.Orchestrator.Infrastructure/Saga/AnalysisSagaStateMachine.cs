@@ -101,6 +101,7 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
                 {
                     context.Saga.AnalysisId,
                     context.Saga.DiagramId,
+                    UserId = context.Saga.UserId,
                     context.Message.ResultJson,
                     context.Message.ProvidersUsed,
                     context.Message.ProcessingTimeMs,

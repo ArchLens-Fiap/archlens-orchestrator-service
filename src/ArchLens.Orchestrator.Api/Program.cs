@@ -4,6 +4,7 @@ using ArchLens.Orchestrator.Api.Middlewares;
 using ArchLens.Orchestrator.Application;
 using ArchLens.Orchestrator.Infrastructure;
 using ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Context;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 try
@@ -67,7 +68,7 @@ try
     app.UseSerilogRequestLogging();
     app.UseRateLimiter();
 
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
     {
         app.UseSwagger();
         app.UseSwaggerUI();

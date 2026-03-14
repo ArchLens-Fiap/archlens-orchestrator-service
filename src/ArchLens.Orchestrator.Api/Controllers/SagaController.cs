@@ -36,6 +36,14 @@ public sealed class SagaController(IMediator mediator, ISagaStateRepository saga
         return Ok(result.Value);
     }
 
+    [HttpGet("admin/metrics")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAdminMetrics(CancellationToken ct)
+    {
+        var metrics = await sagaRepo.GetAdminMetricsAsync(ct);
+        return Ok(metrics);
+    }
+
     [HttpDelete("diagram/{diagramId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

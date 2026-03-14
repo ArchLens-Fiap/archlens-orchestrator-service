@@ -50,6 +50,49 @@ public sealed class SagaStateRepository(SagaDbContext dbContext) : ISagaStateRep
         return true;
     }
 
+    public async Task<AdminMetricsResponse> GetAdminMetricsAsync(CancellationToken ct = default)
+    {
+        var allStates = await dbContext.SagaStates
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        var total = allStates.Count;
+        var completed = allStates.Count(x => x.CurrentState == "Completed");
+        var failed = allStates.Count(x => x.CurrentState == "Failed");
+        var processing = allStates.Count(x => x.CurrentState != "Completed" && x.CurrentState != "Failed");
+
+        var avgProcessingTime = allStates
+            .Where(x => x.CurrentState == "Completed" && x.ProcessingTimeMs.HasValue)
+            .Select(x => (double)x.ProcessingTimeMs!.Value)
+            .DefaultIfEmpty(0)
+            .Average();
+
+        var analysesByState = allStates
+            .GroupBy(x => x.CurrentState)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        var recentAnalyses = allStates
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(20)
+            .Select(x => new RecentAnalysisDto(
+                x.AnalysisId,
+                x.DiagramId,
+                x.CurrentState,
+                x.FileName,
+                x.ProcessingTimeMs,
+                x.CreatedAt))
+            .ToList();
+
+        return new AdminMetricsResponse(
+            total,
+            completed,
+            failed,
+            processing,
+            avgProcessingTime,
+            analysesByState,
+            recentAnalyses);
+    }
+
     private static SagaStatusResponse MapToResponse(AnalysisSagaState state) => new(
         state.CorrelationId,
         state.DiagramId,

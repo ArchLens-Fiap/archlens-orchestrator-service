@@ -8,4 +8,5 @@ public interface ISagaStateRepository
     Task<SagaStatusResponse?> GetByAnalysisIdAsync(Guid analysisId, CancellationToken ct = default);
     Task<IReadOnlyList<SagaStatusResponse>> ListAsync(int page, int pageSize, CancellationToken ct = default);
     Task<bool> DeleteByDiagramIdAsync(Guid diagramId, CancellationToken ct = default);
+    Task<AdminMetricsResponse> GetAdminMetricsAsync(CancellationToken ct = default);
 }

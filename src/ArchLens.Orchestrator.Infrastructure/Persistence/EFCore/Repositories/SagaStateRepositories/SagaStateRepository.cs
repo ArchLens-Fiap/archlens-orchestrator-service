@@ -38,11 +38,24 @@ public sealed class SagaStateRepository(SagaDbContext dbContext) : ISagaStateRep
         return states.Select(MapToResponse).ToList();
     }
 
+    public async Task<bool> DeleteByDiagramIdAsync(Guid diagramId, CancellationToken ct = default)
+    {
+        var state = await dbContext.SagaStates
+            .FirstOrDefaultAsync(x => x.DiagramId == diagramId, ct);
+
+        if (state is null) return false;
+
+        dbContext.SagaStates.Remove(state);
+        await dbContext.SaveChangesAsync(ct);
+        return true;
+    }
+
     private static SagaStatusResponse MapToResponse(AnalysisSagaState state) => new(
         state.CorrelationId,
         state.DiagramId,
         state.AnalysisId,
         state.CurrentState,
+        state.FileName,
         state.RetryCount,
         state.ErrorMessage,
         state.ReportId,

@@ -32,7 +32,7 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
         ConfigureProcessingState();
         ConfigureAnalyzedState();
 
-        SetCompletedWhenFinalized();
+        // Completed sagas are kept in the database for query/history purposes
     }
 
     private void ConfigureEvents()
@@ -182,8 +182,7 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
                     NewStatus = "Completed",
                     Timestamp = DateTime.UtcNow
                 }))
-                .TransitionTo(Completed)
-                .Finalize(),
+                .TransitionTo(Completed),
 
             When(ReportFailed)
                 .Then(context =>

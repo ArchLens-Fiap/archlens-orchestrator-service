@@ -1,3 +1,4 @@
+using ArchLens.Orchestrator.Application.Contracts.Interfaces;
 using ArchLens.Orchestrator.Application.UseCases.Sagas.Queries.GetStatus;
 using ArchLens.Orchestrator.Application.UseCases.Sagas.Queries.List;
 using MediatR;
@@ -6,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLens.Orchestrator.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
-public sealed class SagaController(IMediator mediator) : ControllerBase
+[Route("[controller]")]
+public sealed class SagaController(IMediator mediator, ISagaStateRepository sagaRepo) : ControllerBase
 {
     [HttpGet("diagram/{diagramId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,5 +34,14 @@ public sealed class SagaController(IMediator mediator) : ControllerBase
     {
         var result = await mediator.Send(new ListSagasQuery(page, pageSize), ct);
         return Ok(result.Value);
+    }
+
+    [HttpDelete("diagram/{diagramId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteByDiagram(Guid diagramId, CancellationToken ct)
+    {
+        var deleted = await sagaRepo.DeleteByDiagramIdAsync(diagramId, ct);
+        return deleted ? NoContent() : NotFound();
     }
 }

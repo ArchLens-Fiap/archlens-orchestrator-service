@@ -5,6 +5,7 @@ public record SagaStatusResponse(
     Guid DiagramId,
     Guid AnalysisId,
     string CurrentState,
+    string? FileName,
     int RetryCount,
     string? ErrorMessage,
     Guid? ReportId,

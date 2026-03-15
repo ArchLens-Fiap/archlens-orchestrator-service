@@ -2,6 +2,8 @@
 
 > **Microsserviço Orquestrador de Saga para Análise de Diagramas com IA**
 > Hackathon FIAP - Fase 5 | Pós-Tech Software Architecture + IA para Devs
+>
+> **Autor:** Rafael Henrique Barbosa Pereira (RM366243)
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Container-2496ED)](https://www.docker.com/)
@@ -370,6 +372,4 @@ graph LR
 
 ---
 
-**Autor:** Rafael Henrique Barbosa Pereira (RM366243)
-**Instituição:** FIAP - Pós-Tech Software Architecture + IA para Devs
-**Fase:** 5 - Hackathon (12SOAT + 6IADT)
+**Autor:** Rafael Henrique Barbosa Pereira (RM366243) | FIAP - Pós-Tech Software Architecture + IA para Devs | Fase 5 - Hackathon (12SOAT + 6IADT)

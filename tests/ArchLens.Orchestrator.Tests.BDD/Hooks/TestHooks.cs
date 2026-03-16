@@ -33,6 +33,7 @@ public sealed class TestHooks
         Environment.SetEnvironmentVariable("RabbitMQ__Host", "localhost");
         Environment.SetEnvironmentVariable("RabbitMQ__Username", "guest");
         Environment.SetEnvironmentVariable("RabbitMQ__Password", "guest");
+        Environment.SetEnvironmentVariable("Jwt__Key", "bdd-test-jwt-secret-key-minimum-32-characters!");
 
         MockSagaRepo = Substitute.For<ISagaStateRepository>();
         _factory = new BddWebApplicationFactory(MockSagaRepo);

@@ -21,7 +21,7 @@ Funcionalidade: Métricas administrativas do Orchestrator
     Dado que eu não estou autenticado
     E que existem métricas de sagas disponíveis
     Quando eu consultar as métricas administrativas de sagas
-    Então a resposta deve ter status code 200
+    Então a resposta deve ter status code 401
 
   Cenário: Métricas retornam contadores corretos
     Dado que eu sou um usuário autenticado com role "Admin"

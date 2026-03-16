@@ -40,7 +40,7 @@ Funcionalidade: Consulta de Sagas
     Dado que eu não estou autenticado
     E que existe uma saga para o diagrama "11111111-1111-1111-1111-111111111111"
     Quando eu consultar a saga pelo diagrama "11111111-1111-1111-1111-111111111111"
-    Então a resposta deve ter status code 200
+    Então a resposta deve ter status code 401
 
   Cenário: Listar sagas com paginação
     Dado que eu sou um usuário autenticado com role "User"

@@ -297,7 +297,7 @@ namespace ArchLens.Orchestrator.Tests.BDD.Features
     await testRunner.WhenAsync("eu consultar a saga pelo diagrama \"11111111-1111-1111-1111-111111111111\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
 #line hidden
 #line 43
-    await testRunner.ThenAsync("a resposta deve ter status code 200", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
+    await testRunner.ThenAsync("a resposta deve ter status code 401", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

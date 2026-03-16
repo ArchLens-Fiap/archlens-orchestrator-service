@@ -2,12 +2,14 @@ using ArchLens.Orchestrator.Application.Contracts.Interfaces;
 using ArchLens.Orchestrator.Application.UseCases.Sagas.Queries.GetStatus;
 using ArchLens.Orchestrator.Application.UseCases.Sagas.Queries.List;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLens.Orchestrator.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public sealed class SagaController(IMediator mediator, ISagaStateRepository sagaRepo) : ControllerBase
 {
     [HttpGet("diagram/{diagramId:guid}")]

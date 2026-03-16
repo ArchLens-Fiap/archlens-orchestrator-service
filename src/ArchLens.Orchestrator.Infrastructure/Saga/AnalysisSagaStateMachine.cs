@@ -68,7 +68,7 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
                 {
                     context.Saga.AnalysisId,
                     context.Saga.DiagramId,
-                    StoragePath = context.Saga.StoragePath!,
+                    StoragePath = context.Saga.StoragePath ?? string.Empty,
                     Timestamp = DateTime.UtcNow
                 }))
                 .PublishAsync(context => context.Init<StatusChangedEvent>(new
@@ -136,7 +136,7 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
                         {
                             context.Saga.AnalysisId,
                             context.Saga.DiagramId,
-                            StoragePath = context.Saga.StoragePath!,
+                            StoragePath = context.Saga.StoragePath ?? string.Empty,
                             Timestamp = DateTime.UtcNow
                         })),
                     fail => fail

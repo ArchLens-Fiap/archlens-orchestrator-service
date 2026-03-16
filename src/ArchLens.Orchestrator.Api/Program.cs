@@ -1,10 +1,13 @@
+using System.Text;
 using ArchLens.Orchestrator.Api.Configurations;
 using ArchLens.Orchestrator.Api.ExceptionHandlers;
 using ArchLens.Orchestrator.Api.Middlewares;
 using ArchLens.Orchestrator.Application;
 using ArchLens.Orchestrator.Infrastructure;
 using ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 try
@@ -54,6 +57,23 @@ try
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    var jwtKey = builder.Configuration["Jwt:Key"] ?? "default-dev-key-change-in-production-32chars!";
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "ArchLens",
+                ValidateAudience = true,
+                ValidAudience = builder.Configuration["Jwt:Audience"] ?? "ArchLens",
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                ValidateLifetime = true,
+            };
+        });
+    builder.Services.AddAuthorization();
+
     var app = builder.Build();
 
     if (!app.Environment.IsEnvironment("Testing"))
@@ -68,6 +88,8 @@ try
     app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseSerilogRequestLogging();
     app.UseRateLimiter();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
     {

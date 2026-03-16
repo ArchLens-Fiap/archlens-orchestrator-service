@@ -57,16 +57,18 @@ try
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
-    var jwtKey = builder.Configuration["Jwt:Key"] ?? "default-dev-key-change-in-production-32chars!";
+    var jwtSection = builder.Configuration.GetRequiredSection("Jwt");
+    var jwtKey = jwtSection["Key"]
+        ?? throw new InvalidOperationException("Configuration 'Jwt:Key' is required");
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "ArchLens",
+                ValidIssuer = jwtSection["Issuer"] ?? "ArchLens",
                 ValidateAudience = true,
-                ValidAudience = builder.Configuration["Jwt:Audience"] ?? "ArchLens",
+                ValidAudience = jwtSection["Audience"] ?? "ArchLens",
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                 ValidateLifetime = true,

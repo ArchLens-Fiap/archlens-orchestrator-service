@@ -48,7 +48,8 @@ try
     });
     builder.Services.AddHealthChecks()
         .AddNpgSql(
-            builder.Configuration.GetConnectionString("PostgreSQL")!,
+            builder.Configuration.GetConnectionString("PostgreSQL")
+                ?? throw new InvalidOperationException("ConnectionStrings:PostgreSQL configuration is required."),
             name: "postgresql",
             tags: ["db"]);
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

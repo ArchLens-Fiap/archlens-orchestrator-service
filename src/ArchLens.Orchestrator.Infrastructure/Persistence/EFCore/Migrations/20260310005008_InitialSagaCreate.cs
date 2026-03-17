@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Migrations
 {
-    /// <inheritdoc />
+
     public partial class InitialSagaCreate : Migration
     {
-        /// <inheritdoc />
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -53,7 +53,6 @@ namespace ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Migrations
                 column: "DiagramId");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

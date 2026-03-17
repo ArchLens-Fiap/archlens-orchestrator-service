@@ -32,7 +32,6 @@ public sealed class AnalysisSagaStateMachine : MassTransitStateMachine<AnalysisS
         ConfigureProcessingState();
         ConfigureAnalyzedState();
 
-        // Completed sagas are kept in the database for query/history purposes
     }
 
     private void ConfigureEvents()

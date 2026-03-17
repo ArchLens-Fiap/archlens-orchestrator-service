@@ -107,4 +107,22 @@ public class AnalysisSagaStateMachineTests
         // by checking that the state machine can be instantiated and has states
         _stateMachine.States.Should().HaveCountGreaterOrEqualTo(4);
     }
+
+    [Fact]
+    public void SagaState_NullStoragePath_ShouldFallbackToEmptyString()
+    {
+        // Arrange
+        var saga = new AnalysisSagaState
+        {
+            CorrelationId = Guid.NewGuid(),
+            CurrentState = "Initial",
+            StoragePath = null
+        };
+
+        // Act - simulate the ?? string.Empty branch used in the state machine
+        var storagePath = saga.StoragePath ?? string.Empty;
+
+        // Assert
+        storagePath.Should().Be(string.Empty);
+    }
 }

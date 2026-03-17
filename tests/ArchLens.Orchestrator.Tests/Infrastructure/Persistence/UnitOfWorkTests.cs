@@ -2,6 +2,7 @@ using ArchLens.Orchestrator.Infrastructure.Persistence;
 using ArchLens.Orchestrator.Infrastructure.Persistence.EFCore.Context;
 using ArchLens.Orchestrator.Infrastructure.Saga;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArchLens.Orchestrator.Tests.Infrastructure.Persistence;
@@ -129,6 +130,158 @@ public class UnitOfWorkTests : IDisposable
             CreatedAt = now,
             UpdatedAt = now
         };
+    }
+
+    #endregion
+}
+
+public class UnitOfWorkExecuteAsyncTests : IAsyncDisposable
+{
+    private readonly SqliteConnection _connection;
+    private readonly SagaDbContext _context;
+    private readonly UnitOfWork _sut;
+
+    public UnitOfWorkExecuteAsyncTests()
+    {
+        _connection = new SqliteConnection("DataSource=:memory:");
+        _connection.Open();
+
+        var options = new DbContextOptionsBuilder<SagaDbContext>()
+            .UseSqlite(_connection)
+            .Options;
+
+        _context = new SagaDbContext(options);
+        _context.Database.EnsureCreated();
+        _sut = new UnitOfWork(_context);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _context.DisposeAsync();
+        await _connection.DisposeAsync();
+    }
+
+    #region ExecuteAsync (void)
+
+    [Fact]
+    public async Task ExecuteAsync_WhenWorkSucceeds_ShouldCommitTransaction()
+    {
+        var sagaId = Guid.NewGuid();
+
+        await _sut.ExecuteAsync(async ct =>
+        {
+            _context.SagaStates.Add(new AnalysisSagaState
+            {
+                CorrelationId = sagaId,
+                CurrentState = "Processing",
+                AnalysisId = Guid.NewGuid(),
+                DiagramId = Guid.NewGuid(),
+                FileName = "commit-test.puml",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+            await Task.CompletedTask;
+        });
+
+        var persisted = await _context.SagaStates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CorrelationId == sagaId);
+        persisted.Should().NotBeNull();
+        persisted!.FileName.Should().Be("commit-test.puml");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenWorkThrows_ShouldRollbackAndPropagate()
+    {
+        var sagaId = Guid.NewGuid();
+
+        var act = () => _sut.ExecuteAsync(async ct =>
+        {
+            _context.SagaStates.Add(new AnalysisSagaState
+            {
+                CorrelationId = sagaId,
+                CurrentState = "Processing",
+                AnalysisId = Guid.NewGuid(),
+                DiagramId = Guid.NewGuid(),
+                FileName = "rollback-test.puml",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+            await Task.CompletedTask;
+            throw new InvalidOperationException("Simulated failure");
+        });
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Simulated failure");
+
+        var persisted = await _context.SagaStates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CorrelationId == sagaId);
+        persisted.Should().BeNull();
+    }
+
+    #endregion
+
+    #region ExecuteAsync<T> (with return value)
+
+    [Fact]
+    public async Task ExecuteAsyncT_WhenWorkSucceeds_ShouldCommitAndReturnResult()
+    {
+        var sagaId = Guid.NewGuid();
+
+        var result = await _sut.ExecuteAsync<Guid>(async ct =>
+        {
+            _context.SagaStates.Add(new AnalysisSagaState
+            {
+                CorrelationId = sagaId,
+                CurrentState = "Analyzed",
+                AnalysisId = Guid.NewGuid(),
+                DiagramId = Guid.NewGuid(),
+                FileName = "return-test.puml",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+            await Task.CompletedTask;
+            return sagaId;
+        });
+
+        result.Should().Be(sagaId);
+
+        var persisted = await _context.SagaStates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CorrelationId == sagaId);
+        persisted.Should().NotBeNull();
+        persisted!.CurrentState.Should().Be("Analyzed");
+    }
+
+    [Fact]
+    public async Task ExecuteAsyncT_WhenWorkThrows_ShouldRollbackAndPropagate()
+    {
+        var sagaId = Guid.NewGuid();
+
+        var act = () => _sut.ExecuteAsync<int>(async ct =>
+        {
+            _context.SagaStates.Add(new AnalysisSagaState
+            {
+                CorrelationId = sagaId,
+                CurrentState = "Processing",
+                AnalysisId = Guid.NewGuid(),
+                DiagramId = Guid.NewGuid(),
+                FileName = "rollback-generic-test.puml",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+            await Task.CompletedTask;
+            throw new InvalidOperationException("Generic failure");
+        });
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Generic failure");
+
+        var persisted = await _context.SagaStates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CorrelationId == sagaId);
+        persisted.Should().BeNull();
     }
 
     #endregion

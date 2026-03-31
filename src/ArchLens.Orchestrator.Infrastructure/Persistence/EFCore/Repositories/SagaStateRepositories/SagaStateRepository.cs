@@ -26,10 +26,14 @@ public sealed class SagaStateRepository(SagaDbContext dbContext) : ISagaStateRep
         return state is null ? null : MapToResponse(state);
     }
 
-    public async Task<IReadOnlyList<SagaStatusResponse>> ListAsync(int page, int pageSize, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SagaStatusResponse>> ListAsync(int page, int pageSize, string? userId = null, CancellationToken ct = default)
     {
-        var states = await dbContext.SagaStates
-            .AsNoTracking()
+        var query = dbContext.SagaStates.AsNoTracking().AsQueryable();
+
+        if (userId is not null)
+            query = query.Where(x => x.UserId == userId);
+
+        var states = await query
             .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

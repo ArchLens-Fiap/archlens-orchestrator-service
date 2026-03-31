@@ -13,7 +13,7 @@ public sealed class ListSagasHandler(ISagaStateRepository repository)
         CancellationToken cancellationToken)
     {
         var paged = new PagedRequest(request.Page, request.PageSize);
-        var items = await repository.ListAsync(paged.Page, paged.PageSize, cancellationToken);
+        var items = await repository.ListAsync(paged.Page, paged.PageSize, request.IsAdmin ? null : request.UserId, cancellationToken);
 
         return new PagedResponse<SagaStatusResponse>(items, paged.Page, paged.PageSize, items.Count);
     }

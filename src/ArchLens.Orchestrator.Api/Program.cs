@@ -67,9 +67,9 @@ try
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = jwtSection["Issuer"] ?? "ArchLens",
+                ValidIssuer = jwtSection["Issuer"] ?? "archlens-auth",
                 ValidateAudience = true,
-                ValidAudience = jwtSection["Audience"] ?? "ArchLens",
+                ValidAudience = jwtSection["Audience"] ?? "archlens-services",
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                 ValidateLifetime = true,

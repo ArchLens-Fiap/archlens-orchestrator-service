@@ -1,3 +1,4 @@
+using OpenTelemetry.Logs;
 ﻿using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -21,6 +22,7 @@ public static class OpenTelemetryExtensions
                     ["deployment.environment"] = builder.Environment.EnvironmentName
                 }))
             .WithTracing(tracing => tracing
+                .AddSource("MassTransit")
                 .AddAspNetCoreInstrumentation(o => o.RecordException = true)
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))

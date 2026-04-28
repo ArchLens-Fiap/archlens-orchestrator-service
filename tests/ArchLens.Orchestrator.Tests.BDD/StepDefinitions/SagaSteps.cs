@@ -80,7 +80,7 @@ public class SagaSteps
         };
 
         TestHooks.MockSagaRepo
-            .ListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .ListAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(), Arg.Any<CancellationToken>())
             .Returns(sagas.AsReadOnly());
     }
 
